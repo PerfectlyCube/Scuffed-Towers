@@ -60,8 +60,21 @@
             sellWood(amount) {
 
                 if (this.wood >= amount) {
+                
                     this.gold += amount/25;
-                    this.wood -= amount
+                    this.wood -= amount;
+                
+                }
+
+            }
+
+            buyWood(amount) {
+
+                if (this.gold >= amount/5) {
+
+                    this.wood += amount;
+                    this.gold -= amount/5;
+
                 }
 
             }
@@ -287,6 +300,13 @@
         var alreadyPressed = false;
         var shopOpen = false;
 
+        var shopOptions = [
+
+            ["Sell Wood", resources.sellWood(5)],
+            ["Buy Wood", resources.buyWood(5)]
+
+        ]
+
         function drawShop() {
 
             var hovered = mouseX > window.innerWidth - 240 + 8 && 
@@ -330,7 +350,9 @@
                 g.fillStyle = "#aaaaaa"
                 g.fillRect(0, shopUIY, window.innerWidth, 10);
 
-                for (let i = 0; i < 1; i++) {
+                for (let i = 0; i < 2; i++) {
+
+                    var option = shopOptions[i];
 
                     let subButtonHover = mouseX > 25 + 8 &&
                         mouseY > shopUIY + window.innerHeight - 200 - (180 * i) + 10 &&
@@ -341,10 +363,10 @@
                     g.fillRect(25, shopUIY + window.innerHeight - 200 - (180 * i), 200, 90)
 
                     g.fillStyle = "#000000";
-                    g.fillText("Sell Wood", 40, shopUIY + window.innerHeight - 145 - ((145 * 1.25) * i))
+                    g.fillText(option[0], 40, shopUIY + window.innerHeight - 145 - ((145 * 1.25) * i))
 
                     if (mouseDown && !alreadyPressed && subButtonHover)
-                        resources.sellWood(5);
+                        option[1];
 
                 }
 
