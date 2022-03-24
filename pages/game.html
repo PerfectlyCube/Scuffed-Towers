@@ -5,6 +5,7 @@
     <body style="background-color: rgb(14, 14, 14)"></body>
 
     <canvas id="screen"></canvas>
+    <p style="font: 12px Arial; color: white;">Fullscreen isn't really recommended (breaks the shop button)</p>
     <button id="fullscreen">Fullscreen</button>
 
     <script>
@@ -21,6 +22,12 @@
 
         var woodTowTex = document.createElement("img");
         woodTowTex.src = "../resources/woodtower.png";
+
+        var goldTex = document.createElement("img");
+        goldTex.src = "../resources/gold.png";
+
+        var woodTex = document.createElement("img");
+        woodTex.src = "../resources/wood.png";
 
         var init = false;
 
@@ -277,6 +284,8 @@
                 tower.action(gameTime, resources);
 
             }
+
+            moveTower();
             
             drawGui();
             drawShop();
@@ -287,12 +296,55 @@
 
         }
 
+        var heldTower = null;
+        var htID = 0;
+
+        function moveTower() {
+
+            for (let i = 0; i < towers.length; i++) {
+
+                let tower = towers[i];
+
+                if (tower.x == Math.floor((mouseX - posX - 2)/32) && tower.y == Math.floor((mouseY - posY - 2)/32) && heldTower == null) {
+
+                    if (mouseDown && !alreadyPressed) {
+
+                        heldTower = tower;
+                        htID = i;
+
+                    }
+
+                }
+
+            }
+
+            if (heldTower != null) {
+
+                heldTower.x = Math.floor((mouseX - (posX))/32);
+                heldTower.y = Math.floor((mouseY - (posY))/32);
+
+                var text = null;
+
+            }
+
+            if (heldTower != null && !mouseDown) {
+
+                towers[htID] = heldTower;
+                heldTower = null;
+
+            }
+
+        }
+
         function drawGui() {
 
             g.font = "18px Arial"
             g.fillStyle = "#ffffff";
-            g.fillText("Gold: " + Math.floor(resources.gold) + "g", 4, 18);
-            g.fillText("Wood: " + Math.floor(resources.wood), 4, 36);
+            g.drawImage(goldTex, 4, 4);
+            g.fillText("Gold: " + Math.floor(resources.gold) + "g", 4 + 20, 18);
+
+            g.drawImage(woodTex, 4, 22);
+            g.fillText("Wood: " + Math.floor(resources.wood), 4 + 20, 36);
 
         }
 
@@ -412,7 +464,7 @@
 
         canvas.addEventListener("mousemove", (e) => {
             
-            if (mouseDown && Math.sin(phase * Math.PI/180) == 0) {
+            if (mouseDown && Math.sin(phase * Math.PI/180) == 0 && heldTower == null) {
 
                 veloX += e.movementX/16;
                 veloY += e.movementY/16;
