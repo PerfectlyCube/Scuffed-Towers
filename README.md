@@ -1,2 +1,2 @@
 # Scuffed-Towers
-a javascript and html game
+A javascript incremental tower-defense game.
