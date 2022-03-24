@@ -29,9 +29,19 @@
         var woodTex = document.createElement("img");
         woodTex.src = "../resources/wood.png";
 
+        var cloun = document.createElement("img");
+        cloun.src = "../resources/cloud.png";
+
         var init = false;
 
         let gameTime = 0;
+
+        let displayWidth = 0, displayHeight = 0;
+
+        var cloudX = [], cloudY = [];
+        var cloudMoveX = 0, cloudMoveY = 0;
+
+        var cloudRX = [], cloudRY = [];
 
         var posX = 0, posY = 0;
         var veloX = 0, veloY = 0;
@@ -231,6 +241,21 @@
             canvas.setAttribute("width", window.innerWidth);
             canvas.setAttribute("height", window.innerHeight);
 
+            displayWidth = window.innerWidth;
+            displayHeight = window.innerHeight;
+
+            cloun.style.opacity = 0.5
+
+            for (let i = 0; i < 64 * 36; i++) {
+
+                cloudRX.push(Math.random() * (displayWidth + 128));
+                cloudRY.push(Math.random() * (displayHeight + 96));
+
+                cloudX.push(0);
+                cloudY.push(0);
+
+            }
+
             g.imageSmoothingEnabled = false;
 
             init = true;
@@ -248,14 +273,14 @@
             veloX *= 0.925;
             veloY *= 0.925;
 
-            g.fillStyle = "#000000";
-            g.fillRect(0, 0, window.innerWidth, window.innerHeight);
+            g.fillStyle = `rgb(${144}, ${168}, ${255})`;
+            g.fillRect(0, 0, displayWidth, displayHeight);
 
             for (let y = 0; y < 25; y++) {
 
                 for (let x = 0; x < 25; x++) {
 
-                    if (posX + x * 32 >= window.innerWidth || posY + y * 32 >= window.innerHeight || (posX + x * 32) + 32 < 0 || (posY + y * 32) + 32 < 0) continue;
+                    if (posX + x * 32 >= displayWidth || posY + y * 32 >= displayHeight || (posX + x * 32) + 32 < 0 || (posY + y * 32) + 32 < 0) continue;
 
                     g.drawImage(grsTex, posX + x * 32, posY + y * 32, 32, 32);
 
@@ -267,7 +292,7 @@
 
                 let tower = towers[i];
 
-                if ((posX + tower.x * 32) + 32 < 0 || (posY + tower.y * 32) + 32 < 0 || posX + tower.x * 32 >= window.innerWidth || posY + tower.y * 32 >= window.innerHeight) continue;
+                if ((posX + tower.x * 32) + 32 < 0 || (posY + tower.y * 32) + 32 < 0 || posX + tower.x * 32 >= displayWidth || posY + tower.y * 32 >= displayHeight) continue;
                 
                 if (tower instanceof GoldTower) {
                     
@@ -287,6 +312,39 @@
 
             moveTower();
             
+            for (let x = 0; x < 64; x++) {
+                
+                for (let y = 0; y < 36; y++) {
+
+                    var cX = (cloudX[x + y] + cloudRX[x + y]) - 64, cY = (cloudY[x + y] + cloudRY[x + y]) - 48;
+
+                    if (cX + 64 < -64)
+                        cloudX[x + y] = (displayWidth + 128) - cloudRX[x + y];
+                        
+                    if (cX > displayWidth + 128)
+                        cloudX[x + y] = -64 - cloudRX[x + y];
+
+                    if (cY + 48 < -48)
+                        cloudY[x + y] = (displayHeight + 96) - cloudRY[x + y];
+                
+                    if (cY > displayHeight + 48)
+                        cloudY[x + y] = -48 - cloudRY[x + y];
+                    
+                    if (cX + 48 < 0 || cY + 32 < 0 || cX > displayWidth || cY > displayHeight) continue;
+
+                    g.drawImage(cloun, cX, cY, 48, 32);
+
+                }
+                
+            }
+
+            for (let i = 0; i < cloudX.length; i++) {
+
+                cloudX[i] += cloudMoveX;
+                cloudY[i] += cloudMoveY;
+
+            }
+
             drawGui();
             drawShop();
 
@@ -297,6 +355,8 @@
         }
 
         var heldTower = null;
+        var lastTowerX = 0;
+        var lastTowerY = 0;
         var htID = 0;
 
         function moveTower() {
@@ -305,11 +365,15 @@
 
                 let tower = towers[i];
 
-                if (tower.x == Math.floor((mouseX - posX - 2)/32) && tower.y == Math.floor((mouseY - posY - 2)/32) && heldTower == null) {
+                if (tower.x == Math.floor((mouseX - posX - 1)/32) && tower.y == Math.floor((mouseY - posY + 16)/32) && heldTower == null) {
 
                     if (mouseDown && !alreadyPressed) {
 
+                        lastTowerX = tower.x;
+                        lastTowerY = tower.y;
+
                         heldTower = tower;
+
                         htID = i;
 
                     }
@@ -320,14 +384,37 @@
 
             if (heldTower != null) {
 
-                heldTower.x = Math.floor((mouseX - (posX))/32);
-                heldTower.y = Math.floor((mouseY - (posY))/32);
+                heldTower.x = Math.floor((mouseX - posX - 1)/32);
+                heldTower.y = Math.floor((mouseY - posY + 16)/32);
 
                 var text = null;
 
             }
 
             if (heldTower != null && !mouseDown) {
+
+                for (let i = 0; i < towers.length; i++) {
+
+                    var tower = towers[i];
+
+                    if (tower != heldTower) {
+
+                        if (heldTower.x == tower.x && heldTower.y == tower.y) {
+
+                            heldTower.x = lastTowerX;
+                            heldTower.y = lastTowerY;
+
+                            towers[htID] = heldTower;
+
+                            heldTower = null;
+
+                            return;
+
+                        }
+
+                    }
+
+                }
 
                 towers[htID] = heldTower;
                 heldTower = null;
@@ -361,19 +448,19 @@
 
         function drawShop() {
 
-            var hovered = mouseX > window.innerWidth - 240 + 8 && 
-                mouseY > window.innerHeight - 80 - (Math.sin(phase * Math.PI/180) * (window.innerHeight - 80)) &&
-                mouseX < window.innerWidth - 240 + 180 + 8 &&
-                mouseY < window.innerHeight - 80 - (Math.sin(phase * Math.PI/180) * (window.innerHeight - 80)) + 90
+            var hovered = mouseX > displayWidth - 240 + 8 && 
+                mouseY > displayHeight - 80 - (Math.sin(phase * Math.PI/180) * (displayHeight - 80)) &&
+                mouseX < displayWidth - 240 + 180 + 8 &&
+                mouseY < displayHeight - 80 - (Math.sin(phase * Math.PI/180) * (displayHeight - 80)) + 90
 
             var buttonPressed = Math.sin(phase * Math.PI/180) != 0 && Math.sin(phase * Math.PI/180) != 1;
 
             g.fillStyle = hovered? "#ffffff" : "#aaaaaa";
-            g.fillRect(window.innerWidth - 240, window.innerHeight - 80 - (Math.sin(phase * Math.PI/180) * (window.innerHeight - 80)), 180, 80);
+            g.fillRect(displayWidth - 240, displayHeight - 80 - (Math.sin(phase * Math.PI/180) * (displayHeight - 80)), 180, 80);
 
             g.fillStyle = "#000000";
             g.font = "30px Arial"
-            g.fillText("Shop", window.innerWidth - 215, window.innerHeight - 35 - (Math.sin(phase * Math.PI/180) * (window.innerHeight - 80)));
+            g.fillText("Shop", displayWidth - 215, displayHeight - 35 - (Math.sin(phase * Math.PI/180) * (displayHeight - 80)));
 
             if (mouseDown && !alreadyPressed && hovered && !buttonPressed) {
                 
@@ -394,13 +481,13 @@
 
             if (Math.sin(phase * Math.PI/180) != 0) {
 
-                let shopUIY = window.innerHeight - (Math.sin(phase * Math.PI/180) * (window.innerHeight - 80))
+                let shopUIY = displayHeight - (Math.sin(phase * Math.PI/180) * (displayHeight - 80))
 
                 g.fillStyle = "#777777"
-                g.fillRect(0, shopUIY, window.innerWidth, window.innerHeight);
+                g.fillRect(0, shopUIY, displayWidth, displayHeight);
                 
                 g.fillStyle = "#aaaaaa"
-                g.fillRect(0, shopUIY, window.innerWidth, 10);
+                g.fillRect(0, shopUIY, displayWidth, 10);
 
                 for (let i = 0; i < shopOptions.length; i++) {
 
@@ -423,15 +510,15 @@
                     }
 
                     let subButtonHover = mouseX > 25 + 8 &&
-                        mouseY > shopUIY + window.innerHeight - 200 - (180/1.5 * i) + 10 &&
+                        mouseY > shopUIY + displayHeight - 200 - (180/1.5 * i) + 10 &&
                         mouseX < 25 + 200 + 8 &&
-                        mouseY < shopUIY + window.innerHeight - 200 - (180/1.5 * i) + 90 + 10;
+                        mouseY < shopUIY + displayHeight - 200 - (180/1.5 * i) + 90 + 10;
 
                     g.fillStyle = subButtonHover? "#ffffff" : "#999999";
-                    g.fillRect(25, shopUIY + window.innerHeight - 200 - (180/1.5 * i), 200, 90)
+                    g.fillRect(25, shopUIY + displayHeight - 200 - (180/1.5 * i), 200, 90)
 
                     g.fillStyle = "#000000";
-                    g.fillText(option, 40, shopUIY + window.innerHeight - 145 - ((145 * 1.25/1.5) * i))
+                    g.fillText(option, 40, shopUIY + displayHeight - 145 - ((145 * 1.25/1.5) * i))
 
                     if (mouseDown && !alreadyPressed && subButtonHover)
                         optionAction(option);
@@ -468,6 +555,9 @@
 
                 veloX += e.movementX/16;
                 veloY += e.movementY/16;
+                
+                cloudMoveX += e.movementX/500;
+                cloudMoveY += e.movementY/500;
 
             }
 
