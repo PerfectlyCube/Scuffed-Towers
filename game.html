@@ -1,0 +1,391 @@
+<html>
+
+    <title> Scuffed Towers </title>
+
+    <body style="background-color: rgb(14, 14, 14)"></body>
+
+    <canvas id="screen"></canvas>
+    <button id="fullscreen">Fullscreen</button>
+
+    <script>
+        const canvas = document.getElementById("screen");
+        const g = canvas.getContext('2d');
+
+        const fullscreen = document.getElementById("fullscreen");
+
+        var grsTex = document.createElement("img");
+        grsTex.src = "../resources/grass.png";
+        
+        var goldTowTex = document.createElement("img");
+        goldTowTex.src = "../resources/goldtower.png";
+
+        var woodTowTex = document.createElement("img");
+        woodTowTex.src = "../resources/woodtower.png";
+
+        var init = false;
+
+        let gameTime = 0;
+
+        var posX = 0, posY = 0;
+        var veloX = 0, veloY = 0;
+        var mouseX = 0, mouseY = 0;
+
+        class Price {
+
+            constructor (gold, wood) {
+
+                this.gold = gold;
+                this.wood = wood;
+
+            }
+
+        }
+
+        class Resources {
+
+            constructor (gold, wood) {
+
+                this.gold = gold;
+                this.wood = wood;
+
+            }
+
+            removeResourcesByPrice(price) {
+
+                this.gold -= price.gold;
+                this.wood -= price.wood;
+
+            }
+
+            sellWood(amount) {
+
+                if (this.wood >= amount) {
+                    this.gold += amount/25;
+                    this.wood -= amount
+                }
+
+            }
+
+        }
+
+        var resources = new Resources(0, 0);
+
+        class Tower {
+            
+            constructor (x, y, id) {
+
+                this.x = x;
+                this.y = y;
+
+                this.time = 0;
+
+                this.id = id;
+
+            }
+
+            action(gameTime, resources) {
+
+            }
+
+        }
+
+        class UpgradableTower extends Tower {
+
+            constructor (x, y, id, limit) {
+
+                super (x, y, id);
+
+                this.limit = limit;
+                this.level = 1;
+
+            }
+
+            action(gameTime, resources) {
+
+            }
+
+            upgrade(resources) {
+
+            }
+
+        }
+
+        class BuyableUpgradableTower extends UpgradableTower {
+
+            constructor (x, y, id, limit, price) {
+
+                super (x, y, id, limit);
+                this.price = price;
+            
+            }
+
+            action(gameTime, resources) {
+
+            }
+
+            upgrade(resources) {
+
+            }
+
+            buy(resources) {
+
+                resources.removeResourcesByPrice(this.price);
+
+            }
+
+
+
+        }
+
+        class BuyableTower extends Tower {
+
+            constructor (x, y, id, price) {
+
+                super (x, y, id);
+                this.price = price;
+
+            }
+
+            action(gameTime, resources) {
+
+            }
+
+            buy(resources) {
+
+                resources.removeResourcesByPrice(this.price);
+
+            }
+
+        }
+
+        class GoldTower extends Tower {
+
+            constructor (x, y) {
+
+                super(x, y, 0);
+
+            }
+
+            action(gameTime, resources) {
+
+                if (gameTime - this.time >= 750*3) {
+
+                    resources.gold += 1;
+                    this.time = gameTime;
+
+                }
+
+            }   
+
+        }
+
+        class WoodTower extends BuyableTower {
+
+            constructor(x, y) {
+
+                super(x, y, 1, new Price(12, 0));
+
+            }
+
+            action(gameTime, resources) {
+
+                if (gameTime - this.time >= 750) {
+
+                    resources.wood += 5;
+
+                    this.time = gameTime;
+
+                }
+
+            }
+            
+        }
+
+        var towers = new Array();
+
+        function main() {
+
+            towers.push(new GoldTower(3, 2));
+            towers.push(new WoodTower(3, 3));
+
+            canvas.setAttribute("width", window.innerWidth);
+            canvas.setAttribute("height", window.innerHeight);
+
+            g.imageSmoothingEnabled = false;
+
+            init = true;
+
+        }
+
+        function loop() {
+
+            if (!init)
+                main();
+
+            posX += veloX;
+            posY += veloY;
+
+            veloX *= 0.925;
+            veloY *= 0.925;
+
+            g.fillStyle = "#000000";
+            g.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+            for (let y = 0; y < 25; y++) {
+
+                for (let x = 0; x < 25; x++) {
+
+                    if (posX + x * 32 >= window.innerWidth || posY + y * 32 >= window.innerHeight || (posX + x * 32) + 32 < 0 || (posY + y * 32) + 32 < 0) continue;
+
+                    g.drawImage(grsTex, posX + x * 32, posY + y * 32, 32, 32);
+
+                }
+
+            }
+
+            for (let i = 0; i < towers.length; i++) {
+
+                let tower = towers[i];
+
+                if ((posX + tower.x * 32) + 32 < 0 || (posY + tower.y * 32) + 32 < 0 || posX + tower.x * 32 >= window.innerWidth || posY + tower.y * 32 >= window.innerHeight) continue;
+                
+                if (tower instanceof GoldTower) {
+                    
+                    g.drawImage(goldTowTex, posX + tower.x * 32, posY + tower.y * 32, 32, 32);
+
+                }
+
+                if (tower instanceof WoodTower) {
+
+                    g.drawImage(woodTowTex, posX + tower.x * 32, posY + tower.y * 32, 32, 32);
+
+                }
+
+                tower.action(gameTime, resources);
+
+            }
+            
+            drawGui();
+            drawShop();
+
+            gameTime++;
+
+            alreadyPressed = mouseDown;
+
+        }
+
+        function drawGui() {
+
+            g.font = "18px Arial"
+            g.fillStyle = "#ffffff";
+            g.fillText("Gold: " + Math.floor(resources.gold) + "g", 4, 18);
+            g.fillText("Wood: " + Math.floor(resources.wood), 4, 36);
+
+        }
+
+        var phase = 0;
+        var alreadyPressed = false;
+        var shopOpen = false;
+
+        function drawShop() {
+
+            var hovered = mouseX > window.innerWidth - 240 + 8 && 
+                mouseY > window.innerHeight - 80 - (Math.sin(phase * Math.PI/180) * (window.innerHeight - 80)) &&
+                mouseX < window.innerWidth - 240 + 180 + 8 &&
+                mouseY < window.innerHeight - 80 - (Math.sin(phase * Math.PI/180) * (window.innerHeight - 80)) + 90
+
+            var buttonPressed = Math.sin(phase * Math.PI/180) != 0 && Math.sin(phase * Math.PI/180) != 1;
+
+            g.fillStyle = hovered? "#ffffff" : "#aaaaaa";
+            g.fillRect(window.innerWidth - 240, window.innerHeight - 80 - (Math.sin(phase * Math.PI/180) * (window.innerHeight - 80)), 180, 80);
+
+            g.fillStyle = "#000000";
+            g.font = "30px Arial"
+            g.fillText("Shop", window.innerWidth - 215, window.innerHeight - 35 - (Math.sin(phase * Math.PI/180) * (window.innerHeight - 80)));
+
+            if (mouseDown && !alreadyPressed && hovered && !buttonPressed) {
+                
+                shopOpen = Math.sin(phase * Math.PI/180) != 0
+                
+                if (shopOpen)
+                    phase -= 4;
+                else
+                    phase += 4;
+
+            }
+
+            if (buttonPressed)
+                if (shopOpen)
+                    phase -= 4;
+                else
+                    phase += 4;
+
+            if (Math.sin(phase * Math.PI/180) != 0) {
+
+                let shopUIY = window.innerHeight - (Math.sin(phase * Math.PI/180) * (window.innerHeight - 80))
+
+                g.fillStyle = "#777777"
+                g.fillRect(0, shopUIY, window.innerWidth, window.innerHeight);
+                
+                g.fillStyle = "#aaaaaa"
+                g.fillRect(0, shopUIY, window.innerWidth, 10);
+
+                for (let i = 0; i < 1; i++) {
+
+                    let subButtonHover = mouseX > 25 + 8 &&
+                        mouseY > shopUIY + window.innerHeight - 200 - (180 * i) + 10 &&
+                        mouseX < 25 + 200 + 8 &&
+                        mouseY < shopUIY + window.innerHeight - 200 - (180 * i) + 90 + 10;
+
+                    g.fillStyle = subButtonHover? "#ffffff" : "#999999";
+                    g.fillRect(25, shopUIY + window.innerHeight - 200 - (180 * i), 200, 90)
+
+                    g.fillStyle = "#000000";
+                    g.fillText("Sell Wood", 40, shopUIY + window.innerHeight - 145 - ((145 * 1.25) * i))
+
+                    if (mouseDown && !alreadyPressed && subButtonHover)
+                        resources.sellWood(5);
+
+                }
+
+            }
+                
+            phase = Math.max(Math.min(phase, 90), 0);
+
+        }
+
+        setInterval(loop, 12)
+
+        var mouseDown = false;
+
+        canvas.addEventListener("mousedown", (e) => {
+
+            mouseDown = true;
+        
+        })
+
+        canvas.addEventListener("mouseup", (e) => {
+
+            mouseDown = false;
+
+        })
+
+        canvas.addEventListener("mousemove", (e) => {
+            
+            if (mouseDown && Math.sin(phase * Math.PI/180) == 0) {
+
+                veloX += e.movementX/16;
+                veloY += e.movementY/16;
+
+            }
+
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+        })
+
+        fullscreen.addEventListener("click", (e) => canvas.requestFullscreen())
+
+    </script>
+
+</html>

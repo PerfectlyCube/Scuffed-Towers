@@ -1,0 +1,43 @@
+<html>
+
+    <body id="bd" style="background-color: rgb(78, 78, 78);">
+
+    <title> Scuffed Towers Homepage </title>
+
+    <img src="./resources/logo.png">
+
+    <br>
+
+    <p style="font: 24px Sans-Serif;">a (probably) original game</p>
+    <p style="font: 24px Sans-Serif;">
+        HOW TO PLAY: 
+        basically you have 2 towers that produces wood and gold.
+        gold is a currency that can buy materials but has a limit.
+        wood a resource that is easy to produce but isn't strong for defenses
+    </p>
+
+    <br>
+
+    <button id="gnt" style="background-color: rgb(124, 124, 124)">Open Game</button>
+    <button id="frms" style="background-color: rgb(124, 124, 124);">Open Forums</button>
+
+    <script>
+        
+        const opgm = document.getElementById('gnt');
+        const opfr = document.getElementById('frms');
+
+        opgm.addEventListener("click", (e) => {
+
+            window.open("./pages/game.html");
+
+        })
+
+        opfr.addEventListener("click", (e) => {
+
+            window.open("./pages/forums.html");
+
+        })
+
+    </script>
+
+</html>
