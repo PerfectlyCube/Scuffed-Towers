@@ -371,9 +371,9 @@
                     }
 
                     let subButtonHover = mouseX > 25 + 8 &&
-                        mouseY > shopUIY + window.innerHeight - 200 - (180 * i) + 10 &&
+                        mouseY > shopUIY + window.innerHeight - 200 - (180/1.5 * i) + 10 &&
                         mouseX < 25 + 200 + 8 &&
-                        mouseY < shopUIY + window.innerHeight - 200 - (180 * i) + 90 + 10;
+                        mouseY < shopUIY + window.innerHeight - 200 - (180/1.5 * i) + 90 + 10;
 
                     g.fillStyle = subButtonHover? "#ffffff" : "#999999";
                     g.fillRect(25, shopUIY + window.innerHeight - 200 - (180/1.5 * i), 200, 90)
