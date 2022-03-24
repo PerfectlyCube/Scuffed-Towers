@@ -81,7 +81,7 @@
 
         }
 
-        var resources = new Resources(0, 0);
+        var resources = new Resources(0, 100);
 
         class Tower {
             
@@ -302,9 +302,9 @@
 
         var shopOptions = [
 
-            ["Sell Wood", resources.sellWood(5)],
-            ["Buy Wood", resources.buyWood(5)]
-
+            "Sell Wood",
+            "Buy Wood",
+            
         ]
 
         function drawShop() {
@@ -350,9 +350,25 @@
                 g.fillStyle = "#aaaaaa"
                 g.fillRect(0, shopUIY, window.innerWidth, 10);
 
-                for (let i = 0; i < 2; i++) {
+                for (let i = 0; i < shopOptions.length; i++) {
 
                     var option = shopOptions[i];
+
+                    function optionAction(option) {
+
+                        if (option === "Sell Wood") {
+
+                            resources.sellWood(5);
+
+                        }
+
+                        if (option === "Buy Wood") {
+
+                            resources.buyWood(5);
+
+                        }
+
+                    }
 
                     let subButtonHover = mouseX > 25 + 8 &&
                         mouseY > shopUIY + window.innerHeight - 200 - (180 * i) + 10 &&
@@ -360,13 +376,13 @@
                         mouseY < shopUIY + window.innerHeight - 200 - (180 * i) + 90 + 10;
 
                     g.fillStyle = subButtonHover? "#ffffff" : "#999999";
-                    g.fillRect(25, shopUIY + window.innerHeight - 200 - (180 * i), 200, 90)
+                    g.fillRect(25, shopUIY + window.innerHeight - 200 - (180/1.5 * i), 200, 90)
 
                     g.fillStyle = "#000000";
-                    g.fillText(option[0], 40, shopUIY + window.innerHeight - 145 - ((145 * 1.25) * i))
+                    g.fillText(option, 40, shopUIY + window.innerHeight - 145 - ((145 * 1.25/1.5) * i))
 
                     if (mouseDown && !alreadyPressed && subButtonHover)
-                        option[1];
+                        optionAction(option);
 
                 }
 
