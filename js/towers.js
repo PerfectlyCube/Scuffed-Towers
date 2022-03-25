@@ -1,6 +1,6 @@
 import { goldTowTex, woodTowTex } from "./textures"
 
-class Tower {
+export class Tower {
     
     constructor (img, x, y, id) {
 
@@ -21,7 +21,7 @@ class Tower {
 
 }
 
-class UpgradableTower extends Tower {
+export class UpgradableTower extends Tower {
 
     constructor (img, x, y, id, limit) {
 
@@ -42,7 +42,7 @@ class UpgradableTower extends Tower {
 
 }
 
-class BuyableUpgradableTower extends UpgradableTower {
+export class BuyableUpgradableTower extends UpgradableTower {
 
     constructor (img, x, y, id, limit, price) {
 
@@ -69,7 +69,7 @@ class BuyableUpgradableTower extends UpgradableTower {
 
 }
 
-class BuyableTower extends Tower {
+export class BuyableTower extends Tower {
 
     constructor (img, x, y, id, price) {
 

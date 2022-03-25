@@ -1,0 +1,28 @@
+<html>
+
+    <title> Scuffed Towers </title>
+
+    <body style="background-color: rgb(14, 14, 14)"></body>
+
+    <canvas id="screen"></canvas>
+    <p style="font: 12px Arial; color: white;">Fullscreen isn't really recommended (breaks the shop button)</p>
+    <button id="fullscreen">Fullscreen</button>
+
+    <script src="../js/towers.js" type="module"></script>
+    <script src="../js/renderer.js" type="module"></script>
+    <script src="../js/game.js" type="module"></script>
+
+    <script>
+
+        function loop() {
+
+            update();
+            render(g);
+
+        }
+
+        setInterval(loop, 12);
+
+    </script>
+
+</html>

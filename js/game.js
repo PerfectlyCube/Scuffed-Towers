@@ -1,6 +1,5 @@
 import { cloudRX, cloudRY, cloudMoveX, cloudMoveY, cloudX, cloudY, veloX, veloY, posX, posY } from "./renderer";
 import { GoldTower, WoodTower } from "./towers";
-import { render } from "./renderer";
 
 const canvas = document.getElementById("screen");
 const g = canvas.getContext('2d');
@@ -48,7 +47,7 @@ function main() {
 
 }
 
-function loop() {
+function update() {
 
     if (!init)
         main();
@@ -135,8 +134,6 @@ function moveTower() {
     }
 
 }
-
-setInterval(loop, 12)
 
 var mouseDown = false;
 
